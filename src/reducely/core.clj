@@ -17,13 +17,17 @@
    :action "/create"})
 
 (defn handler [req]
-  (if (= (:uri req) "/create")
-    (gen-response (str "Hi, " (get-in req [:params "url"])))
-    (gen-response (h/html (f/render-form form)))
-    ))
+  (condp = (re-find #"\/[a-zA-Z0-9]+" (:uri req))
+    "/create" (gen-response (str "Hi, " (get-in req [:params "url"])))
+    "/links" (gen-response "The links!")
+    (gen-response (h/html (f/render-form form)))))
 
 (def app
   (mp/wrap-params handler))
 
 (defn boot []
   (jetty/run-jetty #'app {:port 8080 :join? false}))
+
+;; = /link/ => read from DB and redirect
+;; = /create => write to DB with params
+;; everything else render form? 
