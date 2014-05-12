@@ -6,6 +6,10 @@
             [formative.parse :as fp]
             [clojure.pprint :as pp]))
 
+(defn gen-response [data]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body data})
 
 (def form
   {:fields [{:name :url}]
@@ -13,10 +17,10 @@
    :action "/create"})
 
 (defn handler [req]
-  (do (pp/pprint req)
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (h/html (f/render-form form))}))
+  (if (= (:uri req) "/create")
+    (gen-response (str "Hi, " (get-in req [:params "url"])))
+    (gen-response (h/html (f/render-form form)))
+    ))
 
 (def app
   (mp/wrap-params handler))
