@@ -4,12 +4,19 @@
             [hiccup.core :as h]
             [formative.core :as f]
             [formative.parse :as fp]
-            [clojure.pprint :as pp]))
+            [clojure.pprint :as pp]
+            [reducely.db :as db]))
+
 
 (defn gen-response [data]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body data})
+
+(defn create [req]
+  (let [url (get-in req [:params "url"])
+        short (db/add-url url)]
+    (gen-response (str "URL for" url "is now http://localhost:8080/links/" short))))
 
 (def form
   {:fields [{:name :url}]
@@ -18,7 +25,7 @@
 
 (defn handler [req]
   (condp = (re-find #"\/[a-zA-Z0-9]+" (:uri req))
-    "/create" (gen-response (str "Hi, " (get-in req [:params "url"])))
+    "/create" (create req)
     "/links" (gen-response "The links!")
     (gen-response (h/html (f/render-form form)))))
 
@@ -30,4 +37,4 @@
 
 ;; = /link/ => read from DB and redirect
 ;; = /create => write to DB with params
-;; everything else render form? 
+;; everything else render form?
