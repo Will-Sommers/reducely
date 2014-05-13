@@ -13,6 +13,10 @@
    :headers {"Content-Type" "text/html"}
    :body data})
 
+(defn gen-redirect [url]
+  {:status 302
+   :headers {"location " url}})
+
 (defn create [req]
   (let [url (get-in req [:params "url"])
         short (db/add-url url)]
@@ -20,7 +24,7 @@
 
 (defn redirect [id]
   (let [url (db/find-url id)]
-    (gen-response url)))
+    (gen-redirect url)))
 
 (def form
   {:fields [{:name :url}]
