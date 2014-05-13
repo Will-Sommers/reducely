@@ -13,3 +13,7 @@
 (defn add-url [url]
   (let [result (sql/insert! dev-db :urls {:url url})]
     (:short (first result))))
+
+(defn find-url [id]
+  (let [result (sql/query dev-db [(str "select * from urls where short = " id)])]
+    (:url (first result))))

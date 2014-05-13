@@ -18,6 +18,10 @@
         short (db/add-url url)]
     (gen-response (str "URL for" url "is now http://localhost:8080/links/" short))))
 
+(defn redirect [id]
+  (let [url (db/find-url id)]
+    (gen-response url)))
+
 (def form
   {:fields [{:name :url}]
    :validations [[:required [:url]]]
@@ -26,7 +30,10 @@
 (defn handler [req]
   (condp = (re-find #"\/[a-zA-Z0-9]+" (:uri req))
     "/create" (create req)
-    "/links" (gen-response "The links!")
+    "/links" (redirect (last
+                        (re-find
+                         #"\/links\/([a-zA-Z0-9]+)"
+                         (:uri req))))
     (gen-response (h/html (f/render-form form)))))
 
 (def app
